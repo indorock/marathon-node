@@ -1,0 +1,33 @@
+/* Print styles for the calendar view (MD3 refresh). */
+@page { margin: 12mm; }
+
+body.calendar .appbar,
+body.calendar .credits,
+body.calendar .footer,
+body.calendar .section-head .sub { display: none !important; }
+
+body.calendar .page { padding: 0; max-width: none; }
+
+body.calendar .cal-wrap {
+  border: none; border-radius: 0; overflow: visible; background: transparent;
+}
+
+body.calendar table.cal { min-width: 0; width: 100%; }
+
+body.calendar table.cal th,
+body.calendar table.cal td {
+  border-color: #bbb; padding: 3px 6px;
+}
+
+body.calendar table.cal thead th {
+  position: static; background: transparent; color: #000;
+}
+
+/* Print in ink-friendly tones; keep the color-coded left border as a cue. */
+body.calendar table.cal .c-day {
+  background: transparent !important; color: #000 !important;
+  padding: 3px 6px; border-radius: 0;
+}
+body.calendar table.cal .c-day.today { outline: 1.5px solid #000; }
+body.calendar table.cal .c-week,
+body.calendar table.cal .c-total { color: #000; }

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<%
+  // ── View helpers ─────────────────────────────────────────────────────────
+  // Map any activity type (incl. legacy plans: hills, fartlek, repeat-800…) to
+  // one of six visual categories used for colour-coding.
+  function cat(t){
+    if (!t) return 'rest';
+    if (t.indexOf('repeat') === 0 || t === 'hills' || t === 'fartlek' || t === 'intervals') return 'repeats';
+    if (['run','tempo','long','race','rest'].indexOf(t) >= 0) return t;
+    return 'run';
+  }
+  var CHIP = { run:'Easy', repeats:'Intervals', tempo:'Tempo', long:'Long', race:'Race', rest:'Rest', hills:'Hills', fartlek:'Fartlek' };
+  function chipLabel(t){ return CHIP[t] || CHIP[cat(t)] || 'Run'; }
+  function fmtPlan(n){
+    return n.split('-').map(function(p){
+      return /^\d+k$/i.test(p) ? p.toUpperCase() : p.charAt(0).toUpperCase() + p.slice(1);
+    }).join(' ');
+  }
+  var totalDays        = totalTrainingWeeks * 7;
+  var daysUntilStart   = daysLeft - (totalDays - 1);
+  var progressPct      = trainingStarted ? Math.min(100, Math.round(currentWeek / totalTrainingWeeks * 100)) : 0;
+%>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Countdown to <%- raceName %></title>
+<% if (timeout === null) { %>
+    <meta http-equiv="refresh" content="3600">
+<% } %>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="<%- leftPlaintext %>"/>
+    <meta property="og:url" content="<%- siteUrl %>"/>
+    <meta property="og:site_name" content="Countdown to <%- raceName %>"/>
+    <meta property="og:image" content="<%- siteUrl %>/images/logo_<%- raceNameSafe %>_fb.png"/>
+    <meta property="og:description" content="My countdown and training program in preparation for <%- raceName %>, <%- raceDisplayDate %>"/>
+
+    <script>
+      (function(){ try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e){} })();
+      window.countdownTimeout = <%- timeout === null ? 'null' : timeout %>;
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/css/global.css" />
+    <link type="text/css" rel="stylesheet" media="print" href="/css/print.css" />
+    <script defer src="/js/global.js"></script>
+</head>
+<body data-current-week="<%- currentWeek %>">
+
+<header class="appbar">
+    <div class="brand">
+        <span class="mark"><span class="material-symbols-outlined">directions_run</span></span>
+        <span class="title">Countdown<small><%- raceName %></small></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="select-field" title="Training program">
+        <select class="trainingplan-select" aria-label="Training program">
+            <% trainingPlans.forEach(function(plan){ %>
+            <option value="<%- plan %>"<%= plan === trainingType ? ' selected' : '' %>><%= fmtPlan(plan) %></option>
+            <% }); %>
+        </select>
+        <span class="material-symbols-outlined">expand_more</span>
+    </div>
+    <a class="icon-btn" href="/calendar" title="Full calendar view" aria-label="Full calendar view"><span class="material-symbols-outlined">calendar_month</span></a>
+    <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle light / dark theme"><span class="material-symbols-outlined">dark_mode</span></button>
+</header>
+
+<main class="page">
+
+    <!-- ── Compact race header ────────────────────────────────────────── -->
+    <section class="race-header">
+        <img class="rh-logo" src="/images/logo_<%- raceNameSafe %>.png" alt="<%- raceName %> logo" onerror="this.style.display='none'"/>
+        <div class="rh-meta">
+            <div class="rh-name"><%- raceName %></div>
+            <div class="rh-sub">
+                <span class="dot-sep"><span class="material-symbols-outlined">event</span><%- raceDisplayDate %></span>
+                <% if (!trainingStarted && daysUntilStart > 0) { %>
+                <span class="rh-note">Starts in <%- daysUntilStart %> day<%- daysUntilStart === 1 ? '' : 's' %></span>
+                <% } else if (trainingStarted) { %>
+                <span>Week <%- currentWeek %> of <%- totalTrainingWeeks %></span>
+                <% } %>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="rh-count">
+            <span class="tminus">Until race day</span>
+            <span class="val" id="counter"><%- left %></span>
+        </div>
+        <div class="rh-progress"><span style="width: <%- progressPct %>%"></span></div>
+    </section>
+
+    <!-- ── Program toolbar ────────────────────────────────────────────── -->
+    <div class="toolbar">
+        <div class="tb-heading">
+            <h2>Program</h2>
+            <span class="sub"><%- fmtPlan(trainingType) %></span>
+        </div>
+        <div class="spacer"></div>
+        <div class="week-nav">
+            <button class="icon-btn" id="week-prev" aria-label="Previous week"><span class="material-symbols-outlined">chevron_left</span></button>
+            <div class="now">
+                <span class="wk" id="now-week">Week <%- currentWeek %></span>
+                <span class="dates" id="now-dates"></span>
+            </div>
+            <button class="icon-btn" id="week-next" aria-label="Next week"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+        <div class="week-strip" role="tablist" aria-label="Jump to week">
+            <% weeks.forEach(function(week){ %>
+            <button class="week-chip" data-week="<%- week.weekNumber %>" aria-current="false" aria-label="Week <%- week.weekNumber %>"><%- week.weekNumber %></button>
+            <% }); %>
+        </div>
+    </div>
+
+    <div class="program">
+        <div class="weeks-col">
+            <% weeks.forEach(function(week){ %>
+            <section class="week" data-week="<%- week.weekNumber %>" data-dates="<%- week.weekBeginFmt %> – <%- week.weekEndFmt %>">
+                <div class="days">
+                    <% week.days.forEach(function(day){
+                         var c = cat(day.activityType);
+                         var today = day.isToday && trainingStarted;
+                    %>
+                    <button type="button"
+                            class="day a-<%- c %><%- c === 'rest' ? ' is-rest' : '' %><%- today ? ' is-today' : '' %>"
+                            data-type="<%- day.activityType %>" data-cat="<%- c %>">
+                        <span class="dow"><%- day.dayName %></span>
+                        <span class="desc"><%- day.description %><% if (today) { %><span class="today-badge">Today</span><% } %></span>
+                        <span class="chip"><%- chipLabel(day.activityType) %></span>
+                    </button>
+                    <% }); %>
+                </div>
+                <div class="week-total">
+                    <span>Total weekly distance</span>
+                    <span class="km"><%- week.weeklyDistance %> km</span>
+                </div>
+            </section>
+            <% }); %>
+        </div>
+
+        <aside class="detail" id="workout-detail">
+            <div class="detail-accent"></div>
+            <div class="detail-head">
+                <span class="dot"></span>
+                <span class="eyebrow">Workout guide</span>
+            </div>
+            <div class="detail-body">
+                <p>Select any day to see exactly how to run that workout.</p>
+            </div>
+            <div class="detail-hint">
+                <span class="material-symbols-outlined">touch_app</span>
+                Tap a day to read its full explanation
+            </div>
+        </aside>
+    </div>
+
+    <div class="credits">
+        Training program + definitions from <a href="<%- programSourceUrl %>" target="_blank" rel="noopener"><%- programFullName %></a><br>
+        (adjustments made for the metric system)
+    </div>
+    <div class="footer">Website &copy; <%= new Date().getFullYear() %> Mark Mulder</div>
+</main>
+
+<!-- Hidden source for the workout detail panel (rendered by JS on day click) -->
+<div id="workout-info-source" hidden>
+    <% infoItems.forEach(function(item){ %>
+    <div data-type="<%- item.activity_type %>"><%- item.description %></div>
+    <% }); %>
+</div>
+
+</body>
+</html>

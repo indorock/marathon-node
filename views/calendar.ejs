@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<%
+  function cat(t){
+    if (!t) return 'rest';
+    if (t.indexOf('repeat') === 0 || t === 'hills' || t === 'fartlek' || t === 'intervals') return 'repeats';
+    if (['run','tempo','long','race','rest'].indexOf(t) >= 0) return t;
+    return 'run';
+  }
+  function fmtPlan(n){
+    return n.split('-').map(function(p){
+      return /^\d+k$/i.test(p) ? p.toUpperCase() : p.charAt(0).toUpperCase() + p.slice(1);
+    }).join(' ');
+  }
+%>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Calendar — <%- raceName %></title>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="<%- leftPlaintext %>"/>
+    <meta property="og:url" content="<%- siteUrl %>"/>
+    <meta property="og:site_name" content="Countdown to <%- raceName %>"/>
+    <meta property="og:image" content="<%- siteUrl %>/images/logo_<%- raceNameSafe %>_fb.png"/>
+
+    <script>
+      (function(){ try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e){} })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/css/global.css" />
+    <link type="text/css" rel="stylesheet" media="print" href="/css/print.css" />
+    <script defer src="/js/global.js"></script>
+
+    <style media="print">
+        table.cal td, table.cal th { font-size: <%- (140 / totalTrainingWeeks).toFixed(2) %>pt; }
+    </style>
+</head>
+<body class="calendar">
+
+<header class="appbar">
+    <a class="icon-btn" href="/" title="Back to countdown" aria-label="Back to countdown"><span class="material-symbols-outlined">arrow_back</span></a>
+    <div class="brand">
+        <span class="title">Full Calendar<small><%- raceName %></small></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="select-field" title="Training program">
+        <select class="trainingplan-select" aria-label="Training program">
+            <% trainingPlans.forEach(function(plan){ %>
+            <option value="<%- plan %>"<%= plan === trainingType ? ' selected' : '' %>><%= fmtPlan(plan) %></option>
+            <% }); %>
+        </select>
+        <span class="material-symbols-outlined">expand_more</span>
+    </div>
+    <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle light / dark theme"><span class="material-symbols-outlined">dark_mode</span></button>
+</header>
+
+<main class="page">
+    <div class="section-head">
+        <h2><%- fmtPlan(trainingType) %></h2>
+        <span class="sub"><%- totalTrainingWeeks %> weeks · goal race <%- raceDisplayDate %></span>
+    </div>
+
+    <div class="cal-wrap">
+        <table class="cal">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Dates</th>
+                    <% calendarDayNames.forEach(function(dName){ %>
+                    <th><%- dName %></th>
+                    <% }); %>
+                    <th style="text-align:center">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+            <% weeks.forEach(function(week){ %>
+                <tr>
+                    <td class="c-week"><%- week.weekNumber %></td>
+                    <td class="c-dates"><%- week.weekBeginFmt %><br>–<br><%- week.weekEndFmt %></td>
+                    <% week.days.forEach(function(day){
+                         var c = cat(day.activityType);
+                         var today = day.isToday && trainingStarted;
+                    %>
+                    <td>
+                        <div class="c-day a-<%- c %><%- c === 'rest' ? ' is-rest' : '' %><%- today ? ' today' : '' %>">
+                            <%- day.description %>
+                        </div>
+                    </td>
+                    <% }); %>
+                    <% for (var x = week.days.length; x < 7; x++) { %><td></td><% } %>
+                    <td class="c-total"><%- week.weeklyDistance %></td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="credits">
+        Training program + definitions from <a href="<%- programSourceUrl %>" target="_blank" rel="noopener"><%- programFullName %></a><br>
+        (adjustments made for the metric system)
+    </div>
+    <div class="footer">Website &copy; <%= new Date().getFullYear() %> Mark Mulder</div>
+</main>
+
+</body>
+</html>

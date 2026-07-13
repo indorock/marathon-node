@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "app.ts",
+    "routes/**/*.ts",
+    "lib/**/*.ts",
+    "db/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "forceConsistentCasingInFileNames": true,
+  "jsx": "preserve"
+}
