@@ -1,14 +1,14 @@
 /**
- * Complete, self-contained seed for the B2B Run instance (e.g. the b2brun
+ * Complete, self-contained seed for the B2 Run instance (e.g. the b2run
  * subdomain). Creates the schema if missing, adds three 8-week 6K training
  * programs (beginner / intermediate / advanced), sets the target race to the
- * B2B Run (16 Sep 2026), and enables ONLY the three 6K plans in the dropdown.
+ * B2 Run (16 Sep 2026), and enables ONLY the three 6K plans in the dropdown.
  *
  * Unlike seed:sqlite, this has NO external dependency (no XML files), so it
  * reproduces the full intended state on a fresh server from nothing.
  *
  * Idempotent: re-running replaces the same programs and re-points the event.
- * Run with: npm run seed:b2brun   (or: npx tsx db/add-6k-programs.ts)
+ * Run with: npm run seed:b2run   (or: npx tsx db/add-6k-programs.ts)
  *
  * Notes on the existing schema (unchanged here):
  *  - There is no "distance"/"difficulty"/"finish-time" column, so the race
@@ -62,7 +62,7 @@ const beginner: Program = {
     week({ 1: { type: 'run', desc: '4K easy incl 5 x 1min @ goal pace' }, 5: { type: 'long', desc: '6K easy' } }),
     week({ 1: { type: 'repeats-800', desc: '6 x 400m @ goal pace (5:50/km), jog 200m' }, 5: { type: 'long', desc: '6K steady' } }),
     week({ 1: { type: 'repeats-800', desc: '4K incl 3 x 800m @ goal pace' }, 5: { type: 'long', desc: '6K, last 2K @ goal pace' } }),
-    week({ 1: { type: 'run', desc: '3K easy + 4 x 100m strides' }, 6: { type: 'race', desc: '6K Race — B2B Run! Goal: sub-35' } }),
+    week({ 1: { type: 'run', desc: '3K easy + 4 x 100m strides' }, 6: { type: 'race', desc: '6K Race — B2 Run! Goal: sub-35' } }),
   ],
   info: [
     { type: 'run', desc: '<h3>Easy Run</h3><p><strong>Easy running is the foundation of the whole plan — and it really should feel easy.</strong> Aim for roughly 6:20–6:40 per kilometre, but don\'t obsess over the watch. The best guide is the <em>talk test</em>: you should be able to hold a full conversation in complete sentences. If you\'re breathing too hard to chat, you\'re going too fast — ease off, it\'s meant to feel comfortable.</p><p><strong>New to running?</strong> It is completely fine to mix in walking breaks — for example, run 4 minutes, walk 1 minute, and repeat. Begin every run with 3–5 minutes of brisk walking or gentle jogging to warm up, and finish with a few easy minutes to cool down.</p><p>These runs quietly build your aerobic base — the endurance engine that lets you race a strong 6K without falling apart.</p>' },
@@ -86,7 +86,7 @@ const intermediate: Program = {
     week({ 1: { type: 'run', desc: '6K easy' }, 3: { type: 'repeats-800', desc: '5 x 800m @ goal pace, jog 200m' }, 5: { type: 'long', desc: '8K steady' } }),
     week({ 1: { type: 'run', desc: '6K easy' }, 3: { type: 'repeats-1000', desc: '3 x 1K @ goal pace (5:00/km), jog 400m' }, 5: { type: 'long', desc: '9K easy' } }),
     week({ 1: { type: 'run', desc: '6K easy + strides' }, 3: { type: 'tempo', desc: 'Tempo: 4K @ ~5:10/km' }, 5: { type: 'long', desc: '6K, last 3K @ goal pace' } }),
-    week({ 3: { type: 'run', desc: '4K easy + 4 x 100m strides' }, 6: { type: 'race', desc: '6K Race — B2B Run! Goal: sub-30' } }),
+    week({ 3: { type: 'run', desc: '4K easy + 4 x 100m strides' }, 6: { type: 'race', desc: '6K Race — B2 Run! Goal: sub-30' } }),
   ],
   info: [
     { type: 'run', desc: '<h3>Easy Run</h3><p><strong>Easy running makes up the bulk of your week, and it should feel comfortable</strong> — around 5:40–5:55 per kilometre. Use the <em>talk test</em>: if you can chat in full sentences, you\'ve got the effort right. Running these too hard is the number-one reason plans stall, so keep them honestly easy.</p><p>Start each run with a few minutes of gentle jogging to warm up and finish with an easy cool-down. These runs build the aerobic engine that carries a fast 6K — the fitness that lets your harder sessions actually pay off.</p>' },
@@ -112,7 +112,7 @@ const advanced: Program = {
     week({ 1: { type: 'run', desc: '8K easy incl strides' }, 3: { type: 'repeats-1000', desc: '6 x 1K @ goal pace, jog 200m' }, 5: { type: 'long', desc: '12K steady' } }),
     week({ 1: { type: 'run', desc: '8K easy' }, 3: { type: 'repeats-800', desc: '3 x 2K @ ~4:15/km, jog 400m' }, 5: { type: 'long', desc: '14K easy' } }),
     week({ 1: { type: 'run', desc: '8K easy + strides' }, 3: { type: 'tempo', desc: 'Tempo: 6K @ ~4:15/km' }, 5: { type: 'long', desc: '8K, last 4K @ goal pace' } }),
-    week({ 3: { type: 'run', desc: '5K easy incl 6 x 100m strides' }, 6: { type: 'race', desc: '6K Race — B2B Run! Goal: sub-25' } }),
+    week({ 3: { type: 'run', desc: '5K easy incl 6 x 100m strides' }, 6: { type: 'race', desc: '6K Race — B2 Run! Goal: sub-25' } }),
   ],
   info: [
     { type: 'run', desc: '<h3>Easy Run</h3><p><strong>Easy aerobic mileage at roughly 4:50–5:10/km.</strong> Deliberately kept easy so that your two hard sessions each week land with real quality — if the easy days creep up in pace, the key workouts suffer. The talk test still applies: conversational, controlled, relaxed.</p><p>This is the volume that underpins everything else. Warm up and cool down as a matter of routine.</p>' },
@@ -171,7 +171,7 @@ function upsertProgram(db: DatabaseSync, p: Program): void {
 
 function setTargetRace(db: DatabaseSync): void {
   const race = {
-    name: 'B2B Run',
+    name: 'B2 Run',
     // B2Run corporate runs start in the evening; 65 days out from 2026-07-13.
     datetime: '2026-09-16 19:00:00',
     url: 'https://www.b2run.de',
@@ -218,7 +218,7 @@ function main(): void {
   for (const p of PROGRAMS) upsertProgram(db, p);
   enableOnly6k(db);
 
-  console.log('\n6K programs + B2B Run event ready.');
+  console.log('\n6K programs + B2 Run event ready.');
 }
 
 main();
