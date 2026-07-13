@@ -8,6 +8,7 @@
     "build": "tsup && sed -i '' 's/from \"sqlite\"/from \"node:sqlite\"/g' dist/app.js && cp -r views public dist/",
     "start": "node dist/app.js",
     "seed:sqlite": "tsx db/seed.ts",
+    "seed:b2brun": "tsx db/add-6k-programs.ts",
     "seed:mongo": "tsx db/seed-mongo.ts",
     "dev": "tsx watch app.ts"
   },

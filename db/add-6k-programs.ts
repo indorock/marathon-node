@@ -1,9 +1,14 @@
 /**
- * Adds three 8-week 6K training programs (beginner / intermediate / advanced)
- * and sets the target race to the B2B Run (16 Sep 2026).
+ * Complete, self-contained seed for the B2B Run instance (e.g. the b2brun
+ * subdomain). Creates the schema if missing, adds three 8-week 6K training
+ * programs (beginner / intermediate / advanced), sets the target race to the
+ * B2B Run (16 Sep 2026), and enables ONLY the three 6K plans in the dropdown.
+ *
+ * Unlike seed:sqlite, this has NO external dependency (no XML files), so it
+ * reproduces the full intended state on a fresh server from nothing.
  *
  * Idempotent: re-running replaces the same programs and re-points the event.
- * Run with: npx tsx db/add-6k-programs.ts
+ * Run with: npm run seed:b2brun   (or: npx tsx db/add-6k-programs.ts)
  *
  * Notes on the existing schema (unchanged here):
  *  - There is no "distance"/"difficulty"/"finish-time" column, so the race
@@ -18,6 +23,7 @@
 
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { ensureSchema } from './schema';
 
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'db', 'marathon.db');
 
@@ -206,7 +212,8 @@ function main(): void {
   db.exec('PRAGMA journal_mode = WAL');
   db.exec('PRAGMA foreign_keys = ON');
 
-  ensureEnabledColumn(db);
+  ensureSchema(db);          // create tables on a fresh (empty) database
+  ensureEnabledColumn(db);   // add `enabled` to a pre-existing training_programs
   setTargetRace(db);
   for (const p of PROGRAMS) upsertProgram(db, p);
   enableOnly6k(db);
